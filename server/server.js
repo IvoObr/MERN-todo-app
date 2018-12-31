@@ -28,6 +28,8 @@ function rejectCallWithInvalidID(id, response) {
     }
 }
 
+/* Todos Requests */
+
 app.post('/todos', (request, response) => {
     let todo = new Todo({
         text: request.body.text
@@ -89,6 +91,21 @@ app.patch('/todos/:id', (request, response) => {
        response.status(400).send();
    });
 });
+
+ /* User Requests */
+
+app.post('/users', (request, response) => {
+     let body = _.pick(request.body, ['email', 'password', 'name']);
+     let user = new User(body);
+
+     user.save().then(userDoc => {
+         response.send({userDoc});
+     }).catch(error => {
+        response.status(400).send(error);
+     });
+});
+
+
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
