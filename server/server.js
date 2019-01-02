@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
 const colors = require('colors');
+const bcrypt = require('bcryptjs');
 
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo-model');
@@ -114,9 +115,18 @@ app.post('/users', (request, response) => {
      });
 });
 
-// app.post('/users/me', authenticate, (request, response) => {
-//     response.send(request.user);
-// });
+app.post('/users/login', (request, response) => {
+   let body = _.pick(request.body, ['email', 'password']);
+
+   User.findByCredentials(body.email, body.password).then(user => {
+       return user.generateAuthToken().then(token => {
+           response.header(xAuth, token).send({user});
+       });
+   }).catch(error => {
+       response.status(400).send();
+    });
+
+});
 
 app.listen(port, () => {
     console.log('Listening on port'.green, `${port}`.rainbow);
