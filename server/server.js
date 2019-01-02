@@ -8,25 +8,13 @@ const _ = require('lodash');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo-model');
 const {User} = require('./models/user-model');
+const {xAuth} = require('./constants');
+const {authenticate} = require('./middleware/authenticate');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
-
-function checkTodoAndRejectOrResolveCall(todoDoc, response) {
-    if (!todoDoc) {
-        return response.status(404).send();
-    }
-
-    response.send({todoDoc});
-}
-
-function rejectCallWithInvalidID(id, response) {
-    if (!ObjectID.isValid(id)) {
-        return response.status(404).send();
-    }
-}
 
 /* Todos Requests */
 
@@ -53,10 +41,16 @@ app.get('/todos', (request, response) => {
 
 app.get('/todos/:id', (request, response) => {
    let id = request.params.id;
-   rejectCallWithInvalidID(id, response);
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send();
+    }
 
    Todo.findById(id).then(todoDoc => {
-       checkTodoAndRejectOrResolveCall(todoDoc, response);
+       if (!todoDoc) {
+           return response.status(404).send();
+       }
+
+       response.send({todoDoc});
    }).catch(error => {
        response.status(400).send();
    });
@@ -64,10 +58,16 @@ app.get('/todos/:id', (request, response) => {
 
 app.delete('/todos/:id', (request, response) => {
     let id = request.params.id;
-    rejectCallWithInvalidID(id, response);
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send();
+    }
 
     Todo.findByIdAndDelete(id).then(todoDoc => {
-        checkTodoAndRejectOrResolveCall(todoDoc, response);
+        if (!todoDoc) {
+            return response.status(404).send();
+        }
+
+        response.send({todoDoc});
     }).catch(error => {
        response.status(400).send();
     });
@@ -76,7 +76,9 @@ app.delete('/todos/:id', (request, response) => {
 app.patch('/todos/:id', (request, response) => {
     let id = request.params.id;
     let body = _.pick(request.body, ['text', 'completed']);
-    rejectCallWithInvalidID(id, response);
+    if (!ObjectID.isValid(id)) {
+        return response.status(404).send();
+    }
 
    if (_.isBoolean(body.completed) && body.completed) {
        body.completedAt = new Date().getTime();
@@ -86,7 +88,11 @@ app.patch('/todos/:id', (request, response) => {
    }
 
    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then(todoDoc => {
-       checkTodoAndRejectOrResolveCall(todoDoc, response);
+       if (!todoDoc) {
+           return response.status(404).send();
+       }
+
+       response.send({todoDoc});
    }).catch(error => {
        response.status(400).send();
    });
@@ -101,11 +107,15 @@ app.post('/users', (request, response) => {
      user.save().then(() => {
          return user.generateAuthToken();
      }).then((token) => {
-         response.header('x-auth', token).send({user});
+         response.header(xAuth, token).send({user});
      }).catch(error => {
         response.status(400).send(error);
      });
 });
+
+// app.post('/users/me', authenticate, (request, response) => {
+//     response.send(request.user);
+// });
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
