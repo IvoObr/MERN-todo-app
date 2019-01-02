@@ -6,6 +6,8 @@ const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
+const {salt, auth} = require('../constants');
+
 const UserSchema = new Schema({
     name: {
         type: String,
@@ -45,7 +47,7 @@ const UserSchema = new Schema({
 * @override mongoose.toJSON()
 */
 
-UserSchema.methods.toJSON = function () {
+UserSchema.methods.toJSON = function() {
   let user = this;
   let userObj = user.toObject();
 
@@ -55,17 +57,39 @@ UserSchema.methods.toJSON = function () {
 /**
 * @return token
 */
-UserSchema.methods.generateAuthToken = function () {
+UserSchema.methods.generateAuthToken = function() {
     let user = this;
-    let access = 'auth';
-    let token = jwt.sign({_id: user._id.toHexString(), access}, 'o438EDff20fqaVx56wo39c')
-        .toString();
+    let access = auth;
+    let token = jwt.sign({_id: user._id.toHexString(), access}, salt).toString();
 
     user.tokens.push({access, token});
 
     return user.save().then(() => {
        return token;
     });
+};
+
+/**
+* @return User by token
+*/
+UserSchema.statics.findByToken = function(token) {
+   let User = this;
+   let decoded;
+
+   try {
+       decoded = jwt.verify(token, salt);
+   } catch (error) {
+      return new Promise((resolve, reject) => {
+          reject();
+      });
+   }
+
+   return User.findOne({
+       '_id': decoded._id,
+       'tokens.token': token,
+       'tokens.access': auth
+   });
+
 };
 
 let User = mongoose.model('User', UserSchema);
