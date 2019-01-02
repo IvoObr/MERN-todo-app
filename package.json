@@ -17,10 +17,12 @@
   "keywords": [
     "MERN",
     "Express",
-    "NodeJs",
+    "NodeJS",
     "MongoDB",
+    "Mongoose",
     "JavaScript",
-    "ReactJs"
+    "JsonWebToken",
+    "ReactJS"
   ],
   "author": "IvoObr",
   "license": "ISC",
@@ -29,7 +31,9 @@
   },
   "homepage": "https://github.com/IvoObr/MERN-todo-app#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "colors": "^1.3.3",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",

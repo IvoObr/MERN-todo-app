@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
+const colors = require('colors');
 
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo-model');
@@ -118,5 +119,5 @@ app.post('/users', (request, response) => {
 // });
 
 app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+    console.log('Listening on port'.green, `${port}`.rainbow);
 });
