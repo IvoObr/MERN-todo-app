@@ -71,6 +71,22 @@ UserSchema.methods.generateAuthToken = function() {
 };
 
 /**
+* removes token
+* @param token
+* @return Promise
+*/
+UserSchema.methods.removeToken = function(token) {
+    let user = this;
+
+    return user.update({
+        $pull: {
+            tokens: {token}
+        }
+    });
+
+};
+
+/**
 * @return User by token
 */
 UserSchema.statics.findByToken = function(token) {
@@ -93,6 +109,11 @@ UserSchema.statics.findByToken = function(token) {
 
 };
 
+/**
+* @params email
+* @params password
+* @return Promise user
+*/
 UserSchema.statics.findByCredentials = function(email, password) {
     let User = this;
 
@@ -124,8 +145,8 @@ UserSchema.pre('save', function (next) {
            bcrypt.hash(user.password, salt, (error, hash) => {
                user.password = hash;
                next();
-           })
-        })
+           });
+        });
     } else {
         next();
     }

@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
 const colors = require('colors');
-const bcrypt = require('bcryptjs');
 
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo-model');
@@ -126,6 +125,14 @@ app.post('/users/login', (request, response) => {
        response.status(400).send();
     });
 
+});
+
+app.delete('/users/token', authenticate, (request, response) => {
+     request.user.removeToken(request.token).then(()=> {
+        response.status(200).send();
+     }, () => {
+         response.status(400).send();
+     });
 });
 
 app.listen(port, () => {
