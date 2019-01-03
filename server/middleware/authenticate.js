@@ -1,7 +1,7 @@
 'use strict';
 
 const {User} = require('../models/user-model');
-const {xAuth} = require('../constants');
+const {xAuth} = require('../constants/constants');
 
 let authenticate = (request, response, next) => {
     let token = request.header(xAuth);

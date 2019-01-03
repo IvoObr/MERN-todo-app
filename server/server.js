@@ -1,5 +1,6 @@
 'use strict';
 
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
@@ -9,7 +10,7 @@ const colors = require('colors');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo-model');
 const {User} = require('./models/user-model');
-const {xAuth} = require('./constants');
+const {xAuth} = require('./constants/constants');
 const {authenticate} = require('./middleware/authenticate');
 
 const app = express();
