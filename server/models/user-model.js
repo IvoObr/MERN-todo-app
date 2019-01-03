@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
-const {salt, auth} = require('../constants');
+const {auth} = require('../constants/constants');
 
 const UserSchema = new Schema({
     name: {
@@ -61,7 +61,7 @@ UserSchema.methods.toJSON = function() {
 UserSchema.methods.generateAuthToken = function() {
     let user = this;
     let access = auth;
-    let token = jwt.sign({_id: user._id.toHexString(), access}, salt).toString();
+    let token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
     user.tokens.push({access, token});
 
@@ -94,7 +94,7 @@ UserSchema.statics.findByToken = function(token) {
    let decoded;
 
    try {
-       decoded = jwt.verify(token, salt);
+       decoded = jwt.verify(token, process.env.JWT_SECRET);
    } catch (error) {
       return new Promise((resolve, reject) => {
           reject();
